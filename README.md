@@ -187,3 +187,5 @@ Build and run:
 docker build -t vector-service .
 docker run -p 12000:12000 -e VESPA_ENDPOINT=http://vespa:8080 vector-service
 ```
+=======
+# vector-service
