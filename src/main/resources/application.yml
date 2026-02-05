@@ -1,0 +1,49 @@
+server:
+  port: 12000
+
+spring:
+  application:
+    name: vector-service
+  servlet:
+    multipart:
+      max-file-size: 100MB
+      max-request-size: 100MB
+
+# Vespa Cloud Configuration
+vespa:
+  endpoint: ${VESPA_ENDPOINT:http://localhost:8080}
+  tenant: ${VESPA_TENANT:default}
+  application: ${VESPA_APPLICATION:vector-app}
+  instance: ${VESPA_INSTANCE:default}
+  # For Vespa Cloud authentication (optional)
+  certificate-path: ${VESPA_CERTIFICATE_PATH:}
+  private-key-path: ${VESPA_PRIVATE_KEY_PATH:}
+  # Connection settings
+  connection-timeout: 5000
+  read-timeout: 30000
+
+# Embedding Configuration
+embedding:
+  model: sentence-transformers/all-MiniLM-L6-v2
+  dimension: 384
+  batch-size: 32
+
+# Health Check Configuration
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always
+      probes:
+        enabled: true
+  health:
+    vespa:
+      enabled: true
+
+logging:
+  level:
+    com.vectordb: DEBUG
+    ai.djl: INFO

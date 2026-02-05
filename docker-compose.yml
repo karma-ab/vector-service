@@ -1,0 +1,44 @@
+version: '3.8'
+
+services:
+  vector-service:
+    build: .
+    ports:
+      - "12000:12000"
+    environment:
+      - VESPA_ENDPOINT=http://vespa:8080
+      - JAVA_OPTS=-Xms256m -Xmx512m
+    depends_on:
+      - vespa
+    networks:
+      - vector-network
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:12000/api/v1/health/live"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  vespa:
+    image: vespaengine/vespa:8
+    container_name: vespa
+    ports:
+      - "8080:8080"
+      - "19071:19071"
+    volumes:
+      - vespa-data:/opt/vespa/var
+    networks:
+      - vector-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:19071/state/v1/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 120s
+
+networks:
+  vector-network:
+    driver: bridge
+
+volumes:
+  vespa-data:
