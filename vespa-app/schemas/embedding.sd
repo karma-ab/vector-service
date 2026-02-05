@@ -1,0 +1,65 @@
+schema embedding {
+    document embedding {
+        field content type string {
+            indexing: summary | index
+            index: enable-bm25
+        }
+
+        field content_type type string {
+            indexing: summary | attribute
+            attribute: fast-search
+        }
+
+        field category type string {
+            indexing: summary | attribute
+            attribute: fast-search
+        }
+
+        field description type string {
+            indexing: summary | index
+        }
+
+        field media_url type string {
+            indexing: summary | attribute
+        }
+
+        field created_at type long {
+            indexing: summary | attribute
+        }
+
+        field embedding type tensor<float>(x[384]) {
+            indexing: summary | attribute | index
+            attribute {
+                distance-metric: angular
+            }
+            index {
+                hnsw {
+                    max-links-per-node: 16
+                    neighbors-to-explore-at-insert: 200
+                }
+            }
+        }
+    }
+
+    fieldset default {
+        fields: content, description
+    }
+
+    rank-profile semantic {
+        inputs {
+            query(q) tensor<float>(x[384])
+        }
+        first-phase {
+            expression: closeness(field, embedding)
+        }
+    }
+
+    rank-profile hybrid {
+        inputs {
+            query(q) tensor<float>(x[384])
+        }
+        first-phase {
+            expression: closeness(field, embedding) + bm25(content)
+        }
+    }
+}
